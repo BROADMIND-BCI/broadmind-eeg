@@ -1,0 +1,103 @@
+name: Feature request
+description: Propose a capability or change for broadmind-eeg
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. This SDK deliberately keeps a narrow, honest
+        scope: acquisition, montage, band power, artefact *labelling* and
+        export. Features that add clinical interpretation, cloud uploads or
+        unverified hardware claims are out of scope by design - see
+        [CONTRIBUTING.md](CONTRIBUTING.md).
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I searched existing issues and this has not been proposed before.
+          required: true
+        - label: I understand this project labels artefacts and never deletes or "corrects" data.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case, not just the requested API.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What should the SDK do? A sketch of the API is welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including "use BrainFlow directly" or "do nothing, document the limitation".
+    validations:
+      required: false
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport this applies to
+      options:
+        - synthetic (BrainFlow SYNTHETIC_BOARD)
+        - serial (OpenBCI-compatible path)
+        - ble (not implemented)
+        - all / not transport-specific
+    validations:
+      required: true
+
+  - type: dropdown
+    id: hardware
+    attributes:
+      label: Does implementing or testing this need real hardware?
+      options:
+        - "No - can be tested with the synthetic board or generated data"
+        - "Yes - needs a BROADMIND headset"
+        - "Yes - needs another OpenBCI-compatible board"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system (if relevant)
+      placeholder: "macOS 15.1 / Ubuntu 24.04 / Windows 11"
+    validations:
+      required: false
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version (if relevant)
+      placeholder: "3.11.3"
+    validations:
+      required: false
+
+  - type: input
+    id: brainflow-version
+    attributes:
+      label: BrainFlow version (if relevant)
+      placeholder: "5.24.0"
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: References, prior art, or a fixture that would demonstrate the need.
+    validations:
+      required: false

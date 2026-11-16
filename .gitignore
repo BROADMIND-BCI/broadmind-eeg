@@ -1,0 +1,62 @@
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# --- Packaging and build artefacts ------------------------------------------
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+wheelhouse/
+pip-wheel-metadata/
+
+# --- Virtual environments ----------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+
+# --- Test, lint and coverage caches -----------------------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# --- Recording / export outputs ---------------------------------------------
+# The SDK writes recordings and exports where the caller asks it to. Never
+# commit EEG recordings: they are health-adjacent participant data. Examples
+# write to a temporary directory by default, but `--out` saves next to the
+# example and these patterns keep that output out of git. Add fixtures
+# deliberately with `git add -f` (see CONTRIBUTING.md).
+examples/*.edf
+examples/*.csv
+examples/*.json
+examples/*.fif
+recordings/
+*.edf
+*.bdf
+*.fif
+
+# --- macOS -------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# --- Editors / IDEs ----------------------------------------------------------
+.idea/
+.vscode/
+*.swp

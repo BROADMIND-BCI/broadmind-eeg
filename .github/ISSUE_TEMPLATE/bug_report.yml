@@ -1,0 +1,128 @@
+name: Bug report
+description: Report a reproducible defect in broadmind-eeg
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. This is a hardware-adjacent SDK, so please
+        be specific about whether a real headset was involved - "no hardware"
+        is a perfectly good answer and makes the report easier to reproduce.
+
+        **Do not report security vulnerabilities here.** Email security@broadmind.me
+        as described in [SECURITY.md](SECURITY.md).
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: This is not a security vulnerability (those go to security@broadmind.me).
+          required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+      placeholder: "Expected `stream.collect(seconds=2)` to return 500 samples; instead it raised ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Smallest script or command that shows the problem.
+      render: python
+      placeholder: |
+        from broadmind import open_stream
+
+        with open_stream() as stream:
+            print(stream.collect(seconds=2).data.shape)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: transport
+    attributes:
+      label: Transport
+      description: Which transport were you using?
+      options:
+        - synthetic (BrainFlow SYNTHETIC_BOARD)
+        - serial (OpenBCI-compatible path)
+        - ble (not implemented - errors loudly)
+        - not transport-specific
+    validations:
+      required: true
+
+  - type: dropdown
+    id: hardware
+    attributes:
+      label: Was real hardware involved?
+      options:
+        - "No - synthetic board / software only"
+        - "Yes - BROADMIND headset"
+        - "Yes - another OpenBCI-compatible board"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15.1 / Ubuntu 24.04 / Windows 11"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: "`python --version`"
+      placeholder: "3.11.3"
+    validations:
+      required: true
+
+  - type: input
+    id: brainflow-version
+    attributes:
+      label: BrainFlow version
+      description: "`python -c \"import brainflow; print(brainflow.__version__)\"`"
+      placeholder: "5.24.0"
+    validations:
+      required: true
+
+  - type: input
+    id: broadmind-version
+    attributes:
+      label: broadmind-eeg version
+      description: "`python -c \"import broadmind; print(broadmind.__version__)\"`"
+      placeholder: "0.1.0"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Traceback or logs
+      description: Paste the full traceback. Redact paths or identifiers if needed.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Captured data (only if hardware was involved)
+      description: |
+        Instead of a screenshot, attach a small de-identified raw capture (for
+        example packet bytes or a short EDF/CSV) and say how it was captured.
+        A fixture is evidence; a screenshot is not. Never attach participant
+        data.
+    validations:
+      required: false
