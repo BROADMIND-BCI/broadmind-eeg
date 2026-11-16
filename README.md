@@ -333,7 +333,9 @@ The warning is from `pkg_resources` inside pytest's tooling, not from this SDK.
 ## What a human engineer must still do before publishing
 
 This is a working scaffold with tested software behaviour, **not** a
-hardware-validated SDK. Gates, in order:
+hardware-validated SDK. The gates below map to phases P0-P2 of
+[`../RND-ROADMAP.md`](../RND-ROADMAP.md); that document carries the dates,
+acceptance criteria and the reasoning. Gates, in order:
 
 - [ ] **Hardware-in-the-loop, serial.** Connect a real headset, confirm the
       OpenBCI-compatible path actually works: 8 channels, 250 Hz, channel order
@@ -350,8 +352,13 @@ hardware-validated SDK. Gates, in order:
 - [ ] **Confirm the µV conversion assumption** (pre-amp x5, ADC reference,
       24-bit) against the schematic, and correct
       `broadmind.board.microvolts_per_count` / `docs/protocol.md` if it differs.
-- [ ] **CI + release:** GitHub Actions matrix Python 3.10-3.13, ruff/mypy/pytest,
-      signed PyPI release, CHANGELOG, SECURITY.md, CONTRIBUTING.md.
+- [x] **Repository hygiene.** CI matrix (3.10-3.13), ruff, CHANGELOG,
+      SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md and issue forms are in
+      place. `ruff` is pinned and runs a conservative baseline; tightening it is
+      a separate PR, not a release gate.
+- [ ] **Release:** run CI once on GitHub, reconcile the site claim, then tag
+      `v0.1.0` and configure PyPI trusted publishing. Sequenced as **P0** in
+      [`../RND-ROADMAP.md`](../RND-ROADMAP.md).
 - [ ] **Fix the site claim** or ship the remaining seven bindings. Recommended
       wording: *"Python SDK with CSV/EDF/JSON export; other languages via
       BrainFlow."*
