@@ -18,11 +18,11 @@ PiEEG's README says plainly that their board **has no isolation** and the host m
 
 | Question | Status |
 |---|---|
-| Is the BROADMIND Research Kit galvanically isolated? | **Unknown — must be answered by the hardware team.** |
-| If isolated, to what voltage, and by what method (DC-DC / optical / digital isolator)? | **Unknown.** |
-| Can it be worn safely while the USB cable is connected to a mains-powered host? | **Unknown.** |
-| Does the kit ship with any power source of its own? | **Unknown.** The published specification lists USB-C and BLE connectivity, not a battery. |
-| Has anyone written a safety statement for this device? | **No.** Nothing on the site, in the press kit, or in this repository. |
+| Is the BROADMIND Research Kit galvanically isolated? | **No.** Confirmed by the company on 16 November 2026. |
+| If isolated, to what voltage, and by what method? | Not applicable. Isolation is planned, not present. |
+| Can it be worn safely while the USB cable is connected to a mains-powered host? | **Only if the host is unplugged from the mains.** See the operating rules below. |
+| Does the kit have its own power source? | **Battery power source only.** |
+| Has anyone written a safety statement for this device? | **Yes — this document, 16 November 2026.** It still needs to reach the product page and the press kit. |
 
 That last row is the whole problem: the SDK is happy to acquire data from a device worn on a head, and nobody has documented whether that is safe in the configuration people will actually use.
 
@@ -30,14 +30,22 @@ That last row is the whole problem: the SDK is happy to acquire data from a devi
 
 ## What must happen before units ship
 
-### 1. Answer the isolation question
-Get it from the schematic and the hardware engineer, in writing:
+### 1. The isolation question — answered
+The company confirmed on 16 November 2026 that the kit is **not isolated** and is **battery-only**,
+with isolation planned for a future revision. That settles the hardware question; what remains is
+publishing it everywhere a user or a buyer will look.
 
-- Is there an isolation barrier between the electrode front-end and the USB/BLE interface?
-- If yes: what component, what isolation voltage, and is it rated for the working voltage of a laptop supply?
-- If no: the device is a **battery-only** device, and the product must ship and document accordingly.
+### 2. The operating rules — publish these verbatim
 
-### 2. Pick a documented operating mode
+> **⚠ Battery only.** The BROADMIND Research Kit can only be powered from a battery power source.
+> If you want to connect it directly to a computer, **make sure that computer is unplugged from the
+> mains** for the whole recording. Do not run a session with a mains-connected host, a mains-powered
+> monitor, or a bench supply anywhere in the electrode path.
+>
+> **BROADMIND is working on resolving this** — isolation is planned for a future hardware revision.
+> Until it ships, treat every session as battery-only.
+
+The rest of this section describes the options that decision leaves open.
 
 | Mode | What it requires |
 |---|---|

@@ -16,10 +16,13 @@ CSV/EDF/JSON export.
 > [!WARNING]
 > **Not a medical device.** Research and engineering tool only. Nothing in this
 > repository or produced by it is a diagnosis, a therapy or clinical advice.
-> **Read [docs/safety.md](docs/safety.md)** before putting the headset on a
-> person. The electrical isolation status of the BROADMIND hardware is
-> **undocumented** — the SDK does not know whether the device is safe to wear
-> while connected to a mains-powered host, and cannot check.
+>
+> **Battery only.** The kit can only be powered from a battery power source. To
+> connect it directly to a computer, **that computer must be unplugged from the
+> mains** for the whole recording — no mains-powered monitor or bench supply in
+> the electrode path either. The hardware is **not isolated**; isolation is
+> planned. BROADMIND is working on removing this constraint.
+> Read [docs/safety.md](docs/safety.md) before a session.
 
 ---
 
