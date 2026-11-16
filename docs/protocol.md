@@ -12,9 +12,17 @@ Three layers are involved:
 2. **OpenBCI-compatible 33-byte sample frame** - implemented as a codec in
    `broadmind/protocol.py`, unit-tested against synthetic packets, *not*
    observed from BroadMind hardware.
-3. **BroadMind's own wireless/wired protocol** - **not implemented.** The
-   protocol is not public. This SDK does not reverse-engineer it, sniff it or
-   pretend to speak it.
+3. **BroadMind's own transport** - **vendor-confirmed OpenBCI-compatible.**
+   The vendor states that the kit's firmware protocol is the same protocol an
+   OpenBCI board speaks, which is why the serial path maps to BrainFlow's
+   `CYTON_BOARD`. This SDK has not yet observed that on hardware; until a real
+   capture is committed as a fixture, treat layer 2 as *the expected format*
+   and not as a measurement.
+
+   The wireless plan is an ESP32 bridge that forwards the same byte stream over
+   UDP, so the host side uses BrainFlow's `CYTON_WIFI_BOARD` unchanged. The
+   bridge does not exist yet; see [`esp32.md`](esp32.md) for the design and
+   `examples/05_wifi_loopback.py` for the data-plane fixture.
 
 ---
 

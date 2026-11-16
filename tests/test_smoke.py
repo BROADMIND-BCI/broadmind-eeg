@@ -427,7 +427,9 @@ def test_board_config_and_transport_status():
     assert serial.board_id == 0  # BoardIds.CYTON_BOARD
     params = serial.input_params()
     assert params.serial_port == "/dev/cu.usbserial-TEST"
-    assert "unverified" in serial.status
+    # The vendor states the kit is OpenBCI-Cyton compatible; this SDK has not
+    # confirmed it on hardware, and the status string must keep saying so.
+    assert "not yet verified" in serial.status
 
     with pytest.raises(UnsupportedTransportError):
         make_board_config("ble")
@@ -483,3 +485,67 @@ def test_cli_info_json():
     assert payload["device"]["n_channels"] == 8
     assert payload["transports"]["ble"].startswith("not implemented")
     assert "brainflow" in payload["versions"]
+
+
+# ---------------------------------------------------------------------------
+# OpenBCI-compatible transports: serial (Cyton) and WiFi (ESP32 bridge)
+# ---------------------------------------------------------------------------
+
+
+def test_serial_transport_maps_to_cyton_board():
+    """The kit speaks the OpenBCI Cyton protocol, so the serial path is board 0."""
+    from brainflow.board_shim import BoardIds
+
+    from broadmind.board import make_board_config
+
+    config = make_board_config("serial", serial_port="/dev/cu.usbserial-TEST")
+    assert config.board_id == int(BoardIds.CYTON_BOARD)
+    assert config.serial_port == "/dev/cu.usbserial-TEST"
+    params = config.input_params()
+    assert params.serial_port == "/dev/cu.usbserial-TEST"
+
+
+def test_wifi_transport_maps_to_cyton_wifi_board_and_carries_endpoint():
+    """An ESP32 bridge speaking the OpenBCI WiFi-shield protocol is board 5."""
+    from brainflow.board_shim import BoardIds
+
+    from broadmind.board import (
+        DEFAULT_WIFI_PORT,
+        DEFAULT_WIFI_PROTOCOL,
+        make_board_config,
+    )
+
+    config = make_board_config("wifi", ip_address="192.168.4.1")
+    assert config.board_id == int(BoardIds.CYTON_WIFI_BOARD)
+    assert config.ip_port == DEFAULT_WIFI_PORT  # 9000, BrainFlow's expectation
+    assert config.ip_protocol == DEFAULT_WIFI_PROTOCOL
+
+    params = config.input_params()
+    assert params.ip_address == "192.168.4.1"
+    assert params.ip_port == DEFAULT_WIFI_PORT
+    assert params.ip_protocol == DEFAULT_WIFI_PROTOCOL
+
+    overridden = make_board_config("wifi", ip_address="10.0.0.7", ip_port=9100)
+    assert overridden.ip_port == 9100
+    assert overridden.input_params().ip_port == 9100
+
+
+def test_wifi_transport_requires_an_address():
+    """Failing loudly beats opening a board that can never connect."""
+    import pytest
+
+    from broadmind.board import BoardConfigError, make_board_config
+
+    with pytest.raises(BoardConfigError) as excinfo:
+        make_board_config("wifi")
+    assert "ip_address" in str(excinfo.value)
+
+
+def test_transport_status_is_explicit_about_what_is_unverified():
+    """No transport may claim hardware verification it does not have."""
+    from broadmind.board import TRANSPORT_STATUS
+
+    assert TRANSPORT_STATUS["synthetic"].startswith("verified")
+    for name in ("serial", "wifi", "ble"):
+        status = TRANSPORT_STATUS[name].lower()
+        assert "verified" not in status or "not yet verified" in status, name

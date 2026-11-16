@@ -9,6 +9,21 @@ public API should be treated as unstable.
 
 ## [Unreleased]
 
+### Added
+- **`wifi` transport** — ESP32 bridge mapped to BrainFlow's `CYTON_WIFI_BOARD` (UDP,
+  `ip_address` / `ip_port` / `ip_protocol`), with CLI flags `--ip` and `--ip-port`.
+  Firmware does not exist yet; the transport status says so.
+- `examples/05_wifi_loopback.py` — UDP fixture streaming OpenBCI-compatible frames at
+  250 Hz, so firmware and parser work can proceed before hardware is on the bench.
+- `docs/esp32.md` — wireless integration design, firmware brief and pitfalls.
+
+### Changed
+- Transport status strings now record that the kit's firmware protocol is
+  **vendor-confirmed OpenBCI-compatible**, and that this repository has not yet
+  verified it on hardware.
+- `docs/protocol.md` — layer 3 is no longer described as an unknown proprietary
+  protocol.
+
 Nothing yet. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add an entry.
 
 ## [0.1.0] - 2026-11-16

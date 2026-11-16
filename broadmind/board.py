@@ -47,6 +47,8 @@ __all__ = [
     "Transport",
     "TRANSPORT_STATUS",
     "DEFAULT_PREAMP_GAIN",
+    "DEFAULT_WIFI_PORT",
+    "DEFAULT_WIFI_PROTOCOL",
     "BoardConfig",
     "BoardConfigError",
     "UnsupportedTransportError",
@@ -178,25 +180,36 @@ class Transport(str, Enum):
 
     #: No hardware: BrainFlow's synthetic board. This is the *verified* path.
     SYNTHETIC = "synthetic"
-    #: USB serial, OpenBCI-compatible 8-channel 250 Hz protocol. Unverified
-    #: against BroadMind hardware.
+    #: USB serial, OpenBCI Cyton-compatible 8-channel 250 Hz protocol.
+    #: Vendor-confirmed to be the same protocol as an OpenBCI board; not yet
+    #: verified against BroadMind hardware on this bench.
     SERIAL = "serial"
-    #: Bluetooth LE. Not implemented: neither the BroadMind BLE protocol nor a
-    #: BLE transport is provided here.
+    #: WiFi/UDP via an ESP32 bridge, targeting the OpenBCI WiFi-shield protocol
+    #: so BrainFlow's CYTON_WIFI_BOARD can be used unchanged. Firmware pending.
+    WIFI = "wifi"
+    #: Bluetooth LE. Not implemented: no BLE client ships here. The reference
+    #: design is a GATT service mirroring OpenBCI's Ganglion BLE.
     BLE = "ble"
 
 
 #: Honest status of every transport, surfaced by the CLI and README.
 TRANSPORT_STATUS: dict[str, str] = {
     Transport.SYNTHETIC.value: "verified (BrainFlow SYNTHETIC_BOARD, no hardware)",
-    Transport.SERIAL.value: "written, unverified against BroadMind hardware",
-    Transport.BLE.value: "not implemented (BROADMIND BLE protocol is not public)",
+    Transport.SERIAL.value: "OpenBCI-Cyton-compatible per vendor; not yet verified on this bench",
+    Transport.WIFI.value: "planned (ESP32 -> OpenBCI WiFi-shield protocol); firmware not started",
+    Transport.BLE.value: "not implemented (Ganglion-style GATT is the reference design)",
 }
 
 _BOARD_IDS: dict[Transport, int] = {
     Transport.SYNTHETIC: int(BoardIds.SYNTHETIC_BOARD),
     Transport.SERIAL: int(BoardIds.CYTON_BOARD),
+    Transport.WIFI: int(BoardIds.CYTON_WIFI_BOARD),
 }
+
+#: BrainFlow defaults for the WiFi shield path. 9000 is what BrainFlow's
+#: CYTON_WIFI_BOARD expects unless overridden.
+DEFAULT_WIFI_PORT = 9000
+DEFAULT_WIFI_PROTOCOL = 0
 
 
 class BoardConfigError(ValueError):
@@ -225,6 +238,9 @@ class BoardConfig:
     device: DeviceSpec = DEVICE
     serial_port: str | None = None
     mac_address: str | None = None
+    ip_address: str | None = None
+    ip_port: int | None = None
+    ip_protocol: int | None = None
     note: str = ""
     extra: dict[str, Any] = field(default_factory=dict, compare=False, repr=False)
 
@@ -237,6 +253,12 @@ class BoardConfig:
             params.serial_port = self.serial_port
         if self.mac_address:
             params.mac_address = self.mac_address
+        if self.ip_address:
+            params.ip_address = self.ip_address
+        if self.ip_port is not None:
+            params.ip_port = int(self.ip_port)
+        if self.ip_protocol is not None:
+            params.ip_protocol = int(self.ip_protocol)
         for key, value in self.extra.items():
             if hasattr(params, key):
                 setattr(params, key, value)
@@ -294,6 +316,9 @@ class BoardConfig:
             "marker_row": self.marker_row(),
             "serial_port": self.serial_port,
             "mac_address": self.mac_address,
+            "ip_address": self.ip_address,
+            "ip_port": self.ip_port,
+            "ip_protocol": self.ip_protocol,
             "note": self.note,
             "device": self.device.to_dict(),
         }
@@ -315,6 +340,8 @@ class BoardConfig:
             lines.append(f"serial port   : {self.serial_port}")
         if self.mac_address:
             lines.append(f"mac address   : {self.mac_address}")
+        if self.ip_address:
+            lines.append(f"wifi endpoint : {self.ip_address}:{self.ip_port} (protocol {self.ip_protocol})")
         if self.note:
             lines.append(f"note          : {self.note}")
         return "\n".join(lines)
@@ -330,6 +357,9 @@ def make_board_config(
     serial_port: str | None = None,
     mac_address: str | None = None,
     board_id: int | None = None,
+    ip_address: str | None = None,
+    ip_port: int | None = None,
+    ip_protocol: int | None = None,
     **extra: Any,
 ) -> BoardConfig:
     """Build a :class:`BoardConfig` for a transport.
@@ -337,13 +367,22 @@ def make_board_config(
     Parameters
     ----------
     transport:
-        ``"synthetic"`` (default, no hardware), ``"serial"`` (OpenBCI-compatible
-        USB serial path) or ``"ble"``.
+        ``"synthetic"`` (default, no hardware), ``"serial"`` (OpenBCI Cyton
+        compatible USB serial path), ``"wifi"`` (ESP32 bridge speaking the
+        OpenBCI WiFi-shield protocol) or ``"ble"``.
     serial_port:
         Serial device path for the ``serial`` transport, e.g.
         ``/dev/cu.usbserial-1420`` or ``COM3``.
     mac_address:
         Recorded for reporting only; the BLE transport itself is not implemented.
+    ip_address:
+        Board address for ``transport="wifi"``, e.g. ``192.168.4.1``.
+        Required for the WiFi path.
+    ip_port:
+        UDP port for the WiFi path; defaults to 9000 (BrainFlow's expectation).
+    ip_protocol:
+        Socket type for the WiFi path; ``0`` (UDP) is BrainFlow's default and
+        what an ESP32 bridge should implement.
     board_id:
         Override the BrainFlow board id (advanced use, e.g. a different
         BrainFlow-supported board).
@@ -355,7 +394,7 @@ def make_board_config(
     UnsupportedTransportError
         For ``"ble"``, which is documented as roadmap rather than shipped.
     BoardConfigError
-        For unknown transport names.
+        For unknown transport names, or for ``"wifi"`` without an address.
     """
     if isinstance(transport, Transport):
         resolved = transport
@@ -377,12 +416,27 @@ def make_board_config(
             "serial interface, or transport='synthetic' for software-only runs."
         )
 
+    if resolved is Transport.WIFI and not ip_address:
+        raise BoardConfigError(
+            "transport='wifi' needs ip_address (for example the ESP32 bridge's "
+            "address, 192.168.4.1). The WiFi path speaks the OpenBCI "
+            "WiFi-shield protocol so BrainFlow's CYTON_WIFI_BOARD can be used "
+            "unchanged; see docs/esp32.md."
+        )
+
     resolved_board_id = _BOARD_IDS[resolved] if board_id is None else int(board_id)
     note = ""
     if resolved is Transport.SERIAL:
         note = (
-            "OpenBCI-compatible 8-channel 250 Hz serial path; compatibility of "
-            "BroadMind hardware with this protocol is UNVERIFIED."
+            "OpenBCI Cyton-compatible 8-channel 250 Hz serial path. The vendor "
+            "states the kit's firmware protocol is the same as an OpenBCI "
+            "board; this SDK has not yet confirmed it on hardware."
+        )
+    elif resolved is Transport.WIFI:
+        note = (
+            "ESP32 bridge over UDP, speaking the OpenBCI WiFi-shield protocol. "
+            "Firmware not written yet: this configuration opens "
+            "BrainFlow's CYTON_WIFI_BOARD and is ready for it."
         )
     elif resolved is Transport.SYNTHETIC:
         note = (
@@ -395,6 +449,13 @@ def make_board_config(
         board_id=resolved_board_id,
         serial_port=serial_port,
         mac_address=mac_address,
+        ip_address=ip_address,
+        ip_port=(DEFAULT_WIFI_PORT if ip_port is None and resolved is Transport.WIFI else ip_port),
+        ip_protocol=(
+            DEFAULT_WIFI_PROTOCOL
+            if ip_protocol is None and resolved is Transport.WIFI
+            else ip_protocol
+        ),
         note=note,
         extra=dict(extra),
     )

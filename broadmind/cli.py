@@ -90,6 +90,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help="serial device for --transport serial, e.g. /dev/cu.usbserial-1420",
     )
     record.add_argument(
+        "--ip",
+        default=None,
+        help="board address for --transport wifi, e.g. the ESP32 bridge 192.168.4.1",
+    )
+    record.add_argument(
+        "--ip-port",
+        type=int,
+        default=None,
+        help="UDP port for --transport wifi (default: 9000, BrainFlow's expectation)",
+    )
+    record.add_argument(
         "--detect-artifacts",
         action="store_true",
         help="label blinks and jaw clenches in the recorded data (labels only)",
@@ -204,7 +215,12 @@ def cmd_record(args: argparse.Namespace) -> int:
         return 2
 
     try:
-        config = make_board_config(args.transport, serial_port=args.serial_port)
+        config = make_board_config(
+            args.transport,
+            serial_port=args.serial_port,
+            ip_address=args.ip,
+            ip_port=args.ip_port,
+        )
     except UnsupportedTransportError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
