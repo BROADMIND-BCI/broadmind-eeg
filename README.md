@@ -29,9 +29,8 @@ CSV/EDF/JSON export.
 ## Why this repository exists
 
 BROADMIND's public site claims **"Eight language bindings on an open-source
-core"**. At the time this SDK was written, the company's GitHub
-(`BROADMIND-BCI`) contained three forks of OpenBCI repositories and no original
-code, so that sentence described an intention, not a product.
+core"**. At the time this SDK was written, that sentence described an intention,
+not a product.
 
 This repository makes the claim true in the narrow, defensible sense and refuses
 the broad one:
