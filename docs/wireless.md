@@ -2,6 +2,8 @@
 
 *Written 16 November 2026. Supersedes an earlier draft that proposed adopting the legacy OpenBCI WiFi-shield protocol; that approach has been rejected.*
 
+> **Implementation plan:** the workstreams, platform matrix, firmware protocol and dates for this transport live in a separate internal delivery plan (maintained outside this repository, not shipped with the SDK package).
+
 ---
 
 ## 1. The decision

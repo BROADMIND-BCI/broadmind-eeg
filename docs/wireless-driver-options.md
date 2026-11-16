@@ -1,6 +1,6 @@
 # Wireless: which path to a multi-language client?
 
-*Decision note, 16 November 2026. Companion to `wireless.md` (the BLE transport design).*
+*Decision note, 16 November 2026. Companion to `wireless.md` (the BLE transport design); the delivery plan is maintained separately and is not shipped with the SDK.*
 
 ---
 

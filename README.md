@@ -55,7 +55,8 @@ stops, this README says so.
 pip install brainflow numpy edfio
 
 # 2. The SDK (from a checkout)
-cd sdk/broadmind-eeg
+git clone https://github.com/BROADMIND-BCI/broadmind-eeg.git
+cd broadmind-eeg
 pip install -e .
 
 # 3. No hardware needed - use BrainFlow's synthetic board
@@ -305,7 +306,6 @@ builds on.
 ## Tests
 
 ```bash
-cd sdk/broadmind-eeg
 python -m pytest tests/test_smoke.py -v
 ```
 
@@ -313,28 +313,30 @@ Real output on the build machine (Python 3.11.3, macOS, BrainFlow 5.24.0):
 
 ```
 ============================= test session starts ==============================
-platform darwin -- Python 3.11.3, pytest-9.2.0, pluggy-1.7.0 -- /Users/admin/Downloads/DeepSeek work/.venv/bin/python
+platform darwin -- Python 3.11.3, pytest-9.2.0, pluggy-1.7.0 -- .../bin/python
 cachedir: .pytest_cache
-rootdir: .../sdk/broadmind-eeg
+rootdir: .../broadmind-eeg
 configfile: pyproject.toml
-collecting ... collected 14 items
+collecting ... collected 16 items
 
-tests/test_smoke.py::test_montage_order_and_length PASSED                [  7%]
-tests/test_smoke.py::test_band_power_alpha_dominates_on_10hz_sine PASSED [ 14%]
-tests/test_smoke.py::test_blink_detector_labels_without_touching_the_signal PASSED [ 21%]
-tests/test_smoke.py::test_clench_detector_and_combined_labels PASSED     [ 28%]
-tests/test_smoke.py::test_packet_codec_roundtrip_and_parser_resync PASSED [ 35%]
-tests/test_smoke.py::test_ring_buffer_keeps_newest_samples_in_order PASSED [ 42%]
-tests/test_smoke.py::test_csv_roundtrip PASSED                           [ 50%]
-tests/test_smoke.py::test_json_roundtrip PASSED                          [ 57%]
-tests/test_smoke.py::test_edf_roundtrip PASSED                           [ 64%]
-tests/test_smoke.py::test_edf_pads_non_integer_seconds_and_rejects_unsupported_formats PASSED [ 71%]
-tests/test_smoke.py::test_load_dispatch_and_recording_validation PASSED  [ 78%]
-tests/test_smoke.py::test_board_config_and_transport_status PASSED       [ 85%]
-tests/test_smoke.py::test_synthetic_board_collect_and_callback PASSED    [ 92%]
-tests/test_smoke.py::test_cli_info_json PASSED                           [100%]
+tests/test_smoke.py::test_montage_order_and_length PASSED                [  6%]
+tests/test_smoke.py::test_band_power_alpha_dominates_on_10hz_sine PASSED [ 12%]
+tests/test_smoke.py::test_blink_detector_labels_without_touching_the_signal PASSED [ 18%]
+tests/test_smoke.py::test_clench_detector_and_combined_labels PASSED     [ 25%]
+tests/test_smoke.py::test_packet_codec_roundtrip_and_parser_resync PASSED [ 31%]
+tests/test_smoke.py::test_ring_buffer_keeps_newest_samples_in_order PASSED [ 37%]
+tests/test_smoke.py::test_csv_roundtrip PASSED                           [ 43%]
+tests/test_smoke.py::test_json_roundtrip PASSED                          [ 50%]
+tests/test_smoke.py::test_edf_roundtrip PASSED                           [ 56%]
+tests/test_smoke.py::test_edf_pads_non_integer_seconds_and_rejects_unsupported_formats PASSED [ 62%]
+tests/test_smoke.py::test_load_dispatch_and_recording_validation PASSED  [ 68%]
+tests/test_smoke.py::test_board_config_and_transport_status PASSED       [ 75%]
+tests/test_smoke.py::test_synthetic_board_collect_and_callback PASSED    [ 81%]
+tests/test_smoke.py::test_cli_info_json PASSED                           [ 87%]
+tests/test_smoke.py::test_serial_transport_maps_to_cyton_board PASSED    [ 93%]
+tests/test_smoke.py::test_transport_status_is_explicit_about_what_is_unverified PASSED [100%]
 
-======================== 14 passed, 1 warning in 2.34s =========================
+======================== 16 passed, 1 warning in 6.27s =========================
 ```
 
 The warning is from `pkg_resources` inside pytest's tooling, not from this SDK.
@@ -344,9 +346,9 @@ The warning is from `pkg_resources` inside pytest's tooling, not from this SDK.
 ## What a human engineer must still do before publishing
 
 This is a working scaffold with tested software behaviour, **not** a
-hardware-validated SDK. The gates below map to phases P0-P2 of
-[`../RND-ROADMAP.md`](../RND-ROADMAP.md); that document carries the dates,
-acceptance criteria and the reasoning. Gates, in order:
+hardware-validated SDK. The gates below map to phases P0-P2 of the internal
+delivery roadmap, which is maintained outside this repository and carries the
+dates, acceptance criteria and the reasoning. Gates, in order:
 
 - [ ] **Hardware-in-the-loop, serial.** Connect a real headset, confirm the
       OpenBCI-compatible path actually works: 8 channels, 250 Hz, channel order
@@ -368,8 +370,8 @@ acceptance criteria and the reasoning. Gates, in order:
       place. `ruff` is pinned and runs a conservative baseline; tightening it is
       a separate PR, not a release gate.
 - [ ] **Release:** run CI once on GitHub, reconcile the site claim, then tag
-      `v0.1.0` and configure PyPI trusted publishing. Sequenced as **P0** in
-      [`../RND-ROADMAP.md`](../RND-ROADMAP.md).
+      `v0.1.0` and configure PyPI trusted publishing. Sequenced as **P0** in the
+      internal delivery roadmap.
 - [ ] **Fix the site claim** or ship the remaining seven bindings. Recommended
       wording: *"Python SDK with CSV/EDF/JSON export; other languages via
       BrainFlow."*
