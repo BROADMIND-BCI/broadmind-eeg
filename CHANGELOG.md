@@ -10,12 +10,17 @@ public API should be treated as unstable.
 ## [Unreleased]
 
 ### Added
-- **`wifi` transport** — ESP32 bridge mapped to BrainFlow's `CYTON_WIFI_BOARD` (UDP,
-  `ip_address` / `ip_port` / `ip_protocol`), with CLI flags `--ip` and `--ip-port`.
-  Firmware does not exist yet; the transport status says so.
-- `examples/05_wifi_loopback.py` — UDP fixture streaming OpenBCI-compatible frames at
-  250 Hz, so firmware and parser work can proceed before hardware is on the bench.
-- `docs/esp32.md` — wireless integration design, firmware brief and pitfalls.
+- `examples/05_frame_loopback.py` — transport-agnostic framing fixture: streams sample
+  frames at 250 Hz so decoder and firmware work can proceed before a radio exists.
+- `docs/wireless.md` — BLE 5 transport design: GATT shape, batching, connection
+  parameters, power, and the honest cost of leaving the OpenBCI board mapping.
+- `docs/safety.md` — battery-only operation and the isolation status.
+
+### Changed
+- The wireless plan is a **purpose-built BLE 5 transport**, not the OpenBCI
+  WiFi-shield protocol. An earlier `wifi` transport mapped to BrainFlow's
+  `CYTON_WIFI_BOARD` has been **removed** before publication rather than shipped
+  as a dead end.
 
 ### Changed
 - Transport status strings now record that the kit's firmware protocol is

@@ -488,7 +488,7 @@ def test_cli_info_json():
 
 
 # ---------------------------------------------------------------------------
-# OpenBCI-compatible transports: serial (Cyton) and WiFi (ESP32 bridge)
+# Transports: the OpenBCI-compatible serial path, and the BLE product path
 # ---------------------------------------------------------------------------
 
 
@@ -505,40 +505,6 @@ def test_serial_transport_maps_to_cyton_board():
     assert params.serial_port == "/dev/cu.usbserial-TEST"
 
 
-def test_wifi_transport_maps_to_cyton_wifi_board_and_carries_endpoint():
-    """An ESP32 bridge speaking the OpenBCI WiFi-shield protocol is board 5."""
-    from brainflow.board_shim import BoardIds
-
-    from broadmind.board import (
-        DEFAULT_WIFI_PORT,
-        DEFAULT_WIFI_PROTOCOL,
-        make_board_config,
-    )
-
-    config = make_board_config("wifi", ip_address="192.168.4.1")
-    assert config.board_id == int(BoardIds.CYTON_WIFI_BOARD)
-    assert config.ip_port == DEFAULT_WIFI_PORT  # 9000, BrainFlow's expectation
-    assert config.ip_protocol == DEFAULT_WIFI_PROTOCOL
-
-    params = config.input_params()
-    assert params.ip_address == "192.168.4.1"
-    assert params.ip_port == DEFAULT_WIFI_PORT
-    assert params.ip_protocol == DEFAULT_WIFI_PROTOCOL
-
-    overridden = make_board_config("wifi", ip_address="10.0.0.7", ip_port=9100)
-    assert overridden.ip_port == 9100
-    assert overridden.input_params().ip_port == 9100
-
-
-def test_wifi_transport_requires_an_address():
-    """Failing loudly beats opening a board that can never connect."""
-    import pytest
-
-    from broadmind.board import BoardConfigError, make_board_config
-
-    with pytest.raises(BoardConfigError) as excinfo:
-        make_board_config("wifi")
-    assert "ip_address" in str(excinfo.value)
 
 
 def test_transport_status_is_explicit_about_what_is_unverified():
@@ -546,6 +512,6 @@ def test_transport_status_is_explicit_about_what_is_unverified():
     from broadmind.board import TRANSPORT_STATUS
 
     assert TRANSPORT_STATUS["synthetic"].startswith("verified")
-    for name in ("serial", "wifi", "ble"):
+    for name in ("serial", "ble"):
         status = TRANSPORT_STATUS[name].lower()
         assert "verified" not in status or "not yet verified" in status, name

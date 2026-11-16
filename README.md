@@ -10,7 +10,7 @@ CSV/EDF/JSON export.
 | Python | 3.10+ (tested on 3.11.3) |
 | Licence | MIT - see [LICENSE](LICENSE) and [PROVENANCE.md](PROVENANCE.md) |
 | Transport | [BrainFlow](https://brainflow.org) (OpenBCI-compatible open-source core) |
-| Hardware tested | **None.** Verified against BrainFlow's `SYNTHETIC_BOARD` only |
+| Hardware tested | **No capture committed.** A real unit has recorded — footage is on the Kickstarter campaign page and the BROADMIND YouTube channel — but no raw capture is in this repository, so every automated test still runs on `SYNTHETIC_BOARD` |
 | Clinical use | **No.** Not a medical device, no diagnostic claims, no interpretation |
 
 > [!WARNING]

@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""A fake ESP32 bridge: stream OpenBCI-compatible frames over UDP.
+"""A framing fixture: stream sample frames over a datagram socket.
 
 Purpose
 -------
-The kit is stated to speak the same firmware protocol as an OpenBCI board, and
-the wireless plan is an ESP32 bridge feeding BrainFlow's ``CYTON_WIFI_BOARD``.
-That firmware cannot be written against a real headset in a loop, so this script
+The wireless link is a purpose-built BLE transport (see ``docs/wireless.md``),
+and the firmware cannot be written against a real headset in a loop. This script
 is the other end of the wire: it emits a continuous stream of valid 33-byte
-sample packets over UDP, at 250 Hz, so firmware and client work can proceed
-before a unit is on the bench.
+sample frames at 250 Hz so framing and decoder work can proceed before a radio
+exists.
+
+It is deliberately **transport-agnostic**. The payload is exactly what the BLE
+data characteristic will notify; UDP is only the easiest carrier to run locally.
 
 Two ways to use it
 ------------------
@@ -16,14 +18,13 @@ Two ways to use it
    :class:`broadmind.protocol.PacketParser` at the socket. The frames it emits
    are the ones the SDK already decodes.
 
-       python examples/05_wifi_loopback.py --port 9000
+       python examples/05_frame_loopback.py --port 9000
        # in another shell:
-       python examples/05_wifi_loopback.py --self-test
+       python examples/05_frame_loopback.py --self-test
 
-2. **As a BrainFlow target** (once firmware is closer): BrainFlow's
-   ``CYTON_WIFI_BOARD`` also expects a command channel towards the shield, which
-   this script does not implement. Treat it as a *data-plane* reference, not a
-   device emulator. See ``docs/esp32.md`` for what the firmware must add.
+2. **As a payload reference for the BLE work:** the frames emitted here are the
+   same bytes the GATT data characteristic will carry. See ``docs/wireless.md``
+   for the service shape, batching rule and connection parameters.
 
 Safety
 ------
@@ -62,7 +63,7 @@ def run_server(host: str, port: int, rate: float, duration: float | None) -> int
     sock.bind((host, port))
     peers: set[tuple[str, int]] = set()
 
-    print(f"fake ESP32 bridge streaming {rate:g} Hz to {host}:{port}", flush=True)
+    print(f"frame fixture streaming {rate:g} Hz to {host}:{port}", flush=True)
     print("  waiting for a client to send one byte so we know where to reply…", flush=True)
     # Non-blocking: a blocking recv here would throttle the send loop to one
     # frame per timeout, which is exactly the bug this fixture exists to catch

@@ -19,10 +19,10 @@ Three layers are involved:
    capture is committed as a fixture, treat layer 2 as *the expected format*
    and not as a measurement.
 
-   The wireless plan is an ESP32 bridge that forwards the same byte stream over
-   UDP, so the host side uses BrainFlow's `CYTON_WIFI_BOARD` unchanged. The
-   bridge does not exist yet; see [`esp32.md`](esp32.md) for the design and
-   `examples/05_wifi_loopback.py` for the data-plane fixture.
+   The wireless path is a purpose-built **BLE 5** transport carrying the same
+   byte stream — not the legacy OpenBCI WiFi-shield protocol. It is not
+   implemented yet; see [`wireless.md`](wireless.md) for the service shape and
+   `examples/05_frame_loopback.py` for the framing fixture.
 
 ---
 
