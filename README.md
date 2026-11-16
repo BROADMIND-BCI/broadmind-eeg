@@ -13,6 +13,14 @@ CSV/EDF/JSON export.
 | Hardware tested | **None.** Verified against BrainFlow's `SYNTHETIC_BOARD` only |
 | Clinical use | **No.** Not a medical device, no diagnostic claims, no interpretation |
 
+> [!WARNING]
+> **Not a medical device.** Research and engineering tool only. Nothing in this
+> repository or produced by it is a diagnosis, a therapy or clinical advice.
+> **Read [docs/safety.md](docs/safety.md)** before putting the headset on a
+> person. The electrical isolation status of the BROADMIND hardware is
+> **undocumented** — the SDK does not know whether the device is safe to wear
+> while connected to a mains-powered host, and cannot check.
+
 ---
 
 ## Why this repository exists
