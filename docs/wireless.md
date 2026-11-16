@@ -106,11 +106,14 @@ Keep the transport behind the existing `Transport` enum so nothing else in the p
 
 Adopting a custom BLE transport **gives up the "eight language bindings for free" argument for the wireless path**. BrainFlow has no board for our device; every other language would need its own BLE client.
 
-Three ways to get it back, in order of preference:
+Three ways to get it back, in order of preference — the full comparison is in
+[`wireless-driver-options.md`](wireless-driver-options.md):
 
-1. **Upstream a BROADMIND board to BrainFlow** once the GATT protocol is stable. PiEEG did exactly this (`PIEEG_BOARD` = 56) and got a SupportedBoards listing — free distribution to the research audience. A board implementation that talks to our GATT service is then one piece of code, not eight.
-2. **Publish the protocol** so any client can be written against it, and ship the Python one as reference.
+1. **LSL outlet first.** Cheap, days not weeks, and it reaches C++, C#, Java, Python and MATLAB/Octave at once through liblsl plus LabRecorder. This is the practical multi-language unlock and it belongs with the product, not after it.
+2. **Upstream a BROADMIND board to BrainFlow** once the GATT protocol is stable. BrainFlow already ships five BLE-native boards, so this is a board registration in its C++ core, not a new client per language. PiEEG did exactly this (`PIEEG_BOARD` = 56) and got a SupportedBoards listing.
 3. **Accept Python-first** for wireless and say so on the site.
+
+**Rejected:** rewriting or forking BrainFlow per language. Its BLE capability already exists; a fork would duplicate it and cost maintenance forever. A BLE→virtual-serial bridge is a useful convenience for BrainFlow users on macOS/Linux only — and its real cost is emulating the OpenBCI command surface, so it is not the cheap route it looks like.
 
 The serial path is unaffected: it remains OpenBCI-compatible and keeps the BrainFlow mapping.
 
