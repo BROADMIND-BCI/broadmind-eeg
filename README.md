@@ -380,6 +380,46 @@ dates, acceptance criteria and the reasoning. Gates, in order:
 
 ---
 
+## Roadmap
+
+The next product step is wireless: a battery-only Bluetooth LE link from the
+headset to a host, delivering the same bytes the wired path produces. The full
+delivery plan is internal; this is its shape.
+
+**One protocol, several clients.** The framing is specified once, versioned, and
+frozen before any client ships. Every implementation is tested against the same
+golden vectors, so the Python, iOS and Android clients cannot drift apart. The
+radio is a transparent bridge: it forwards bytes and never parses, resamples or
+re-stamps a sample, because the device's own counter is the only clock.
+
+**Clients, by priority.**
+
+| Client | Platforms | Role |
+|---|---|---|
+| Python | macOS, Linux, Windows | The desktop product path |
+| iOS | iPhone | Native CoreBluetooth capture app |
+| Android | Kotlin | Native capture app |
+| LSL outlet | any LSL consumer | Makes every other language a first-class consumer |
+| Virtual serial | macOS, Linux | Opt-in bridge for BrainFlow's Cyton board; not Windows |
+
+**Order of work.** Firmware first - it is the critical path, and every client
+develops against a simulated peripheral until real hardware streams. Then the
+Python client, with the LSL outlet in parallel, then the iOS app, and only once
+the protocol has been stable long enough for an outside client to be written
+from the published specification does the board go upstream into BrainFlow.
+
+**Not doing.** No cloud and no server-side processing; no Web Bluetooth, which
+cannot reach iOS and cannot control the radio; no per-language forks of
+BrainFlow; and no speculative serial bridge until someone actually asks for one.
+
+**Done means** a 30-minute session at full rate on every platform in the table,
+each matching a wired capture from the same session; loss reported in the
+exported file rather than hidden; checksums verified on every packet rather than
+trusted; authenticated pairing; and the safety constraint - battery only, no
+mains in the recording path - stated wherever wireless use is described.
+
+---
+
 ## Licence
 
 MIT - see [LICENSE](LICENSE). Design references and dependency licences are
